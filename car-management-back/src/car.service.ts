@@ -20,8 +20,10 @@ export class CarService {
 
   async create(createCarDto: CreateCarDto): Promise<CarDocument> {
     const { ProductionCost, TransportationCost } = createCarDto;
-    const total = this.calculateTotal(ProductionCost, TransportationCost);
-    createCarDto.Total = total;
+    createCarDto.Total = this.calculateTotal(
+      ProductionCost,
+      TransportationCost,
+    );
     const car = new this.carModel(createCarDto);
     return car.save();
   }
@@ -36,8 +38,10 @@ export class CarService {
 
   async update(id: string, updateCarDto: UpdateCarDto): Promise<CarDocument> {
     const { ProductionCost, TransportationCost } = updateCarDto;
-    const total = this.calculateTotal(ProductionCost, TransportationCost);
-    updateCarDto.Total = total;
+    updateCarDto.Total = this.calculateTotal(
+      ProductionCost,
+      TransportationCost,
+    );
     return this.carModel.findByIdAndUpdate(id, updateCarDto);
   }
 
