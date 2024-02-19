@@ -17,7 +17,7 @@ After you were able to run the UI service please go to the next folder called **
 - Finally, you were able to see the app running, go to your emulator to interact with it
 
 ### Note:
-Since some unexpected constraints in my current Job, I encountered difficulties in fulfilling all the technical requirements, like validations and unit testing. Despite my best efforts, the time constraints and unexpected challenges prevented me from delivering a complete technical test that met all the specified criteria.
+Since some unexpected constraints in my current job, I had not to much bandwidth to fulfilling all the technical requirements, like validations and unit testing. Despite my best efforts, the time constraints and unexpected challenges prevented me from delivering a complete technical test that met all the specified criteria.
 
 On a positive note, I took the opportunity to enhance the UI flow requirements, aligning them more closely with current trends in mobile applications. I incorporated features such as the ability to swipe left for item editing or deletion, aiming to provide a more intuitive and user-friendly experience.
 
