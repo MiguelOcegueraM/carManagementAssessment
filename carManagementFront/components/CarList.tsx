@@ -95,7 +95,6 @@ export const CarList: React.FC<CarListProps> = ({ isDataUpdated }) => {
         <TouchableOpacity
           style={[styles.backRightBtn, styles.backRightBtnLeft]}
           onPress={() => editRow(rowMap, data.item._id)}
-          testID="editButton"
         >
           <Text style={styles.backTextWhite}>Edit</Text>
         </TouchableOpacity>
