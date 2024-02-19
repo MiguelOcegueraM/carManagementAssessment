@@ -1,3 +1,4 @@
-# Welcome to my technical Assessment project to Dressy Club
+# Welcome to my technical Assessment project
 
 ## How to run it?
+

@@ -3,7 +3,11 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import AddCarModal from './AddCarModal';
 
-const Header = () => {
+interface HeaderProps {
+    dataUpdated: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ dataUpdated }) => {
     const [isModalVisible, setModalVisible] = useState(false);
 
     const openModal = () => {
@@ -12,6 +16,8 @@ const Header = () => {
 
     const closeModal = () => {
         setModalVisible(false);
+        console.log("item Agregado");
+        dataUpdated();
     };
 
     return (
@@ -19,7 +25,7 @@ const Header = () => {
             <Text style={styles.letter}>T</Text>
             <Text style={styles.textStyle}>heCarManager</Text>
             <View style={styles.iconContainer}>
-                <Pressable onPress={openModal} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
+                <Pressable testID="openModalButton" onPress={openModal} style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}>
                     <FontAwesome name="plus" size={24} color="#333" />
                 </Pressable>
             </View>

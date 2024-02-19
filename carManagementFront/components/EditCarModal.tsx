@@ -1,24 +1,72 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchItem, updateItem } from '@/api';
 import { Modal, View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 interface EditCarModalProps {
+    id: string | number;
     visible: boolean;
     onClose: () => void;
 }
 
-const EditCarModal: React.FC<EditCarModalProps> = ({ visible, onClose }) => {
+const EditCarModal: React.FC<EditCarModalProps> = ({ visible, onClose, id }) => {
     const [modelValue, setModelValue] = useState('');
     const [brandValue, setBrandValue] = useState('');
     const [mainColorValue, setMainColorValue] = useState('');
-    const [numericValue, setNumericValue] = useState('');
+    const [Value, setValue] = useState('');
     const [productionCostValue, setProductionCostValue] = useState('');
     const [transportationCostValue, setTransportationCostValue] = useState('');
 
-    const handleSave = () => {
-        onClose();
+    useEffect(() => {
+        const fetchItemDetails = async () => {
+            try {
+                const item = await fetchItem(id);
+                setModelValue(item.Model);
+                setBrandValue(item.Brand);
+                setMainColorValue(item.MainColor);
+                setValue(String(item.Value));
+                setProductionCostValue(String(item.ProductionCost));
+                setTransportationCostValue(String(item.TransportationCost));
+                
+            } catch (error) {
+                console.error('Error fetching item details:', error);
+            }
+        };
+
+        if (visible && id) {
+            fetchItemDetails();
+        }
+    },[visible, id])
+
+    const clearFields = () => {
+        setModelValue('');
+        setBrandValue('');
+        setMainColorValue('');
+        setValue('');
+        setProductionCostValue('');
+        setTransportationCostValue('');
+    }
+    
+    const handleSave = async () => {
+        try {
+            const newData = {
+                Model: modelValue,
+                Brand: brandValue,
+                MainColor: mainColorValue,
+                Value: parseFloat(Value),
+                ProductionCost: parseFloat(productionCostValue),
+                TransportationCost: parseFloat(transportationCostValue),
+            };
+
+            await updateItem(newData, id);
+            clearFields();
+            onClose();
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
     };
 
     const handleCancel = () => {
+        clearFields();
         onClose();
     };
 
@@ -57,8 +105,8 @@ const EditCarModal: React.FC<EditCarModalProps> = ({ visible, onClose }) => {
                             <Text style={styles.label}>Value</Text>
                             <TextInput
                                 placeholder="Value"
-                                value={numericValue}
-                                onChangeText={setNumericValue}
+                                value={Value}
+                                onChangeText={setValue}
                                 keyboardType="numeric"
                                 style={styles.input}
                             />

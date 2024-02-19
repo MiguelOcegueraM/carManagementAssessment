@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { addData } from '@/api';
 import { Modal, View, Text, TextInput, Button, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 interface AddCarModalProps {
@@ -14,11 +15,36 @@ const AddCarModal: React.FC<AddCarModalProps> = ({ visible, onClose }) => {
     const [productionCostValue, setProductionCostValue] = useState('');
     const [transportationCostValue, setTransportationCostValue] = useState('');
 
-    const handleSave = () => {
-        onClose();
+    const clearFields = () => {
+        setModelValue('');
+        setBrandValue('');
+        setMainColorValue('');
+        setNumericValue('');
+        setProductionCostValue('');
+        setTransportationCostValue('');
+    }
+
+    const handleSave = async () => {
+        try {
+            const newData = {
+                Model: modelValue,
+                Brand: brandValue,
+                MainColor: mainColorValue,
+                Value: parseFloat(numericValue),
+                ProductionCost: parseFloat(productionCostValue),
+                TransportationCost: parseFloat(transportationCostValue),
+            };
+
+            await addData(newData);
+            clearFields();
+            onClose();
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
     };
 
     const handleCancel = () => {
+        clearFields();
         onClose();
     };
 

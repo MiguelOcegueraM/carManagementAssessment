@@ -1,36 +1,46 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, TouchableHighlight, Text, View, Animated } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import EditCarModal from './EditCarModal';
+import { fetchData, deleteData } from '@/api';
 
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item',
-  },
-];
 
-export const CarList = () => {
+interface CarListProps {
+    isDataUpdated: boolean;
+}
+
+export const CarList: React.FC<CarListProps> = ({ isDataUpdated }) => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [listData, setListData] = useState(
-    Array(20)
-      .fill('')
-      .map((_, i) => ({ key: `${i}`, text: `item #${i}` }))
-  );
+  const [listData, setListData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [itemSelected, setItemSelected] = useState<string | number>('');
+
+  useEffect(() => {
+    fetchCardData();
+  }, []);
+
+  const fetchCardData = async () => {
+    try {
+      const data = await fetchData();
+      setListData(data)
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false);
+      console.log('Error fetchCarData', error);
+    }
+  };
+
+  if (isDataUpdated === true) {
+    fetchCardData();
+  }
 
   const openModal = () => {
     setModalVisible(true);
+
   };
 
   const closeModal = () => {
+    fetchCardData();
     setModalVisible(false);
   };
 
@@ -41,18 +51,27 @@ export const CarList = () => {
   };
 
   const editRow = (rowMap: any, rowKey: string | number) => {
-    if (rowMap[rowKey]) {
-      rowMap[rowKey].closeRow();
-      openModal();
+    try {
+        closeRow(rowMap, rowKey);
+        setItemSelected(rowKey);
+        openModal();
+    } catch (e) {
+        console.log(e);
     }
   };
 
   const deleteRow = (rowMap: any, rowKey: string | number) => {
-    closeRow(rowMap, rowKey);
-    const newData = [...listData];
-    const prevIndex = listData.findIndex(item => item.key === rowKey);
-    newData.splice(prevIndex, 1);
-    setListData(newData);
+    try {
+        deleteData(rowKey);
+        closeRow(rowMap, rowKey);
+        const newData = [...listData];
+        const prevIndex = listData.findIndex(item => item._id === rowKey);
+        newData.splice(prevIndex, 1);
+        setListData(newData)
+    } catch (e){
+        console.log("Error Deleting")
+        throw e;
+    };
 };
 
   const renderItem = (data: any) => (
@@ -61,8 +80,10 @@ export const CarList = () => {
         onPress={() => console.log('You touched me')}
         underlayColor={'#ffffff'}
       >
-        <View>
-          <Text>I am {data.item.text} in a SwipeListView</Text>
+        <View style={styles.textContainer}>
+          <Text>{`Model: ${data.item.Model} \nBrand: ${data.item.Brand} \nValue: $${data.item.Value}`}</Text>
+          <Text style={styles.textData}>{`Production Cost: $${data.item.ProductionCost} \nTransportation Cost: $${data.item.TransportationCost}`}</Text>
+          <Text style={styles.textDataTotal}>{`Total: $${data.item.Total}`}</Text>
         </View>
       </TouchableHighlight>
     </View>
@@ -73,13 +94,14 @@ export const CarList = () => {
       <View style={styles.rowBack}>
         <TouchableOpacity
           style={[styles.backRightBtn, styles.backRightBtnLeft]}
-          onPress={() => editRow(rowMap, data.item.key)}
+          onPress={() => editRow(rowMap, data.item._id)}
+          testID="editButton"
         >
           <Text style={styles.backTextWhite}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.backRightBtn, styles.backRightBtnRight]}
-          onPress={() => deleteRow(rowMap, data.item.key)}
+          onPress={() => deleteRow(rowMap, data.item._id)}
         >
           <Text style={styles.backTextWhite}>Delete</Text>
         </TouchableOpacity>
@@ -88,7 +110,8 @@ export const CarList = () => {
   };
 
   return (
-    <><SwipeListView
+    <>
+    <SwipeListView
       data={listData}
       renderItem={renderItem}
       renderHiddenItem={renderHiddenItem}
@@ -96,7 +119,7 @@ export const CarList = () => {
       rightOpenValue={-150}
       previewRowKey={'0'}
       previewOpenValue={-40}
-      previewOpenDelay={3000} /><EditCarModal visible={isModalVisible} onClose={closeModal} /></>
+      previewOpenDelay={3000} /><EditCarModal visible={isModalVisible} onClose={closeModal} id={itemSelected}/></>
   );
 }
 
@@ -140,6 +163,20 @@ const styles = StyleSheet.create({
   backRightBtnRight: {
       backgroundColor: '#BA0C2F',
       right: 0,
+  },
+  textContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignContent: 'center',
+  },
+  textData: {
+    paddingLeft: 100,
+  },
+  textDataTotal: {
+    paddingLeft: 50,
+    alignContent: 'center',
+    fontWeight: 'bold',
   },
 });
 
